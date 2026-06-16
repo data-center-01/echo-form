@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MENG PHANETH POLY CLINIC - Echo Report</title>
+    
+    <!-- PWA Icons & Favicon -->
+    <link rel="icon" type="image/png" href="https://github.com/data-center-01/meng-phaneth-polyclinic/blob/main/poly%20clinic%20logo.png?raw=true">
+    <link rel="apple-touch-icon" href="https://github.com/data-center-01/meng-phaneth-polyclinic/blob/main/poly%20clinic%20logo.png?raw=true">
+    
+    <!-- Social Crawling (Open Graph / Twitter Cards) -->
+    <meta property="og:title" content="MENG PHANETH POLY CLINIC - Echo Report">
+    <meta property="og:description" content="Ultrasound and Medical Report Management System">
+    <meta property="og:image" content="https://github.com/data-center-01/meng-phaneth-polyclinic/blob/main/poly%20clinic%20logo.png?raw=true">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="MENG PHANETH POLY CLINIC">
+    <meta name="twitter:image" content="https://github.com/data-center-01/meng-phaneth-polyclinic/blob/main/poly%20clinic%20logo.png?raw=true">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Print Styles */
+        @media print {
+            @page { margin: 1.5cm; }
+            body { background-color: white; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            
+            /* Remove borders and backgrounds for a clean printed report */
+            input, textarea, select {
+                border: none !important;
+                background: transparent !important;
+                resize: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                color: black !important;
+            }
+            
+            /* Expand textareas to fit content on print */
+            textarea {
+                height: auto !important;
+                overflow: visible !important;
+            }
+
+            .print-border-bottom {
+                border-bottom: 1px solid #000 !important;
+                border-radius: 0 !important;
+            }
+
+            .shadow-md, .shadow-sm, .shadow-lg { box-shadow: none !important; }
+            .bg-white { background-color: transparent !important; }
+            .rounded-lg, .rounded-xl, .rounded-md { border-radius: 0 !important; }
+            
+            /* Ensure images don't break across pages awkwardly */
+            .image-preview-container {
+                break-inside: avoid;
+                page-break-inside: avoid;
+            }
+            
+            /* Clinic Header for Print */
+            .clinic-header {
+                text-align: center;
+                border-bottom: 2px solid #2563eb;
+                padding-bottom: 1rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        .print-only { display: none; }
+        
+        /* Image upload grid styling */
+        .img-wrap { position: relative; }
+        .img-wrap .delete-btn {
+            position: absolute; top: 4px; right: 4px;
+            background: rgba(239, 68, 68, 0.9); color: white;
+            border-radius: 50%; width: 24px; height: 24px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 14px; opacity: 0; transition: opacity 0.2s;
+        }
+        .img-wrap:hover .delete-btn { opacity: 1; }
+    </style>
+</head>
+<body class="text-gray-800 antialiased h-screen overflow-hidden">
+
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 no-print"></div>
+
+    <div id="login-view" class="fixed inset-0 bg-gray-100 flex items-center justify-center z-40 transition-opacity duration-300">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+            <div class="text-center mb-6">
+                <img src="https://github.com/data-center-01/meng-phaneth-polyclinic/blob/main/poly%20clinic%20logo.png?raw=true" alt="MENG PHANETH Logo" class="w-24 h-24 mx-auto mb-4 object-contain rounded-full shadow-sm bg-white">
+                <h2 class="text-2xl font-bold text-gray-800">MENG PHANETH</h2>
+                <p class="text-sm text-gray-500 uppercase tracking-widest">Poly Clinic</p>
+            </div>
+            
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                    <input type="text" id="login-username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    <input type="password" id="login-password" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none" required>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 shadow-sm">
+                    Log In
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="main-view" class="h-full flex flex-col hidden opacity-0 transition-opacity duration-300">
+        
+        <!-- Top Action Bar (Non-Printable) -->
+        <div class="bg-slate-800 text-white p-3 flex justify-between items-center no-print shadow-md z-10">
+            <div class="flex items-center space-x-3">
+                <img src="https://github.com/data-center-01/meng-phaneth-polyclinic/blob/main/poly%20clinic%20logo.png?raw=true" alt="Logo" class="w-8 h-8 object-contain rounded-full bg-white p-0.5">
+                <span class="font-bold text-lg tracking-wider hidden sm:inline">MENG PHANETH CLINIC SYSTEM</span>
+                <span class="text-xs bg-slate-700 px-2 py-1 rounded text-slate-300" id="current-user-display">User: ...</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="document.getElementById('add-user-modal').classList.remove('hidden')" class="px-3 py-1.5 bg-slate-700 hover:bg-slate-600 rounded text-sm transition">Add User</button>
+                <div class="h-6 w-px bg-slate-600 mx-2"></div>
+                <button onclick="triggerFileLoad()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded text-sm transition flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    Load File
+                </button>
+                <input type="file" id="file-loader" accept=".json" class="hidden" onchange="loadDataFromFile(event)">
+                <button onclick="saveDataToDrive()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded text-sm transition flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Save File
+                </button>
+                <button onclick="window.print()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded text-sm transition flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Print
+                </button>
+                <button onclick="resetForm()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-900 font-medium rounded text-sm transition flex items-center gap-1">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    New Patient
+                </button>
+                <div class="h-6 w-px bg-slate-600 mx-2"></div>
+                <button onclick="logout()" class="px-3 py-1.5 bg-red-600 hover:bg-red-500 rounded text-sm transition">Logout</button>
+            </div>
+        </div>
+
+        <!-- Scrollable Form Area -->
+        <div class="flex-1 overflow-y-auto p-4 md:p-8">
+            <div class="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-xl shadow-lg print:shadow-none print:p-0">
+                
+                <!-- Clinic Header (Styled heavily for print) -->
+                <div class="clinic-header flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <img src="https://github.com/data-center-01/meng-phaneth-polyclinic/blob/main/poly%20clinic%20logo.png?raw=true" alt="MENG PHANETH Logo" class="w-24 h-24 object-contain">
+                        <div class="text-left">
+                            <h1 class="text-3xl md:text-4xl font-extrabold text-blue-800 tracking-wide uppercase">MENG PHANETH</h1>
+                            <h2 class="text-xl font-semibold text-gray-600 uppercase tracking-widest mt-1">Poly Clinic</h2>
+                            <p class="text-sm text-gray-500 mt-2 print:text-black">No. 123, Street 456, Phnom Penh, Cambodia</p>
+                            <p class="text-sm text-gray-500 print:text-black">Tel: 012 345 678 / 098 765 432</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <h3 class="text-2xl font-bold text-gray-800 bg-gray-100 px-4 py-2 rounded-lg print:bg-transparent print:border print:border-gray-800">ULTRASOUND REPORT</h3>
+                    </div>
+                </div>
+
+                <!-- Patient Information -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8 mt-6">
+                    <div class="flex items-center">
+                        <label class="w-24 font-semibold text-gray-700">Patient Name:</label>
+                        <input type="text" id="patient-name" class="flex-1 print-border-bottom border-b border-gray-300 focus:border-blue-500 outline-none px-2 py-1 text-lg font-medium" placeholder="Enter name">
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-24 font-semibold text-gray-700">Date:</label>
+                        <input type="date" id="exam-date" class="flex-1 print-border-bottom border-b border-gray-300 focus:border-blue-500 outline-none px-2 py-1">
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-24 font-semibold text-gray-700">Age/Sex:</label>
+                        <div class="flex-1 flex gap-2">
+                            <input type="text" id="patient-age" class="w-16 print-border-bottom border-b border-gray-300 focus:border-blue-500 outline-none px-2 py-1" placeholder="Age">
+                            <select id="patient-sex" class="flex-1 print-border-bottom border-b border-gray-300 focus:border-blue-500 outline-none px-2 py-1 bg-transparent">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex items-center">
+                        <label class="w-24 font-semibold text-gray-700">Ref. Doctor:</label>
+                        <input type="text" id="ref-doctor" class="flex-1 print-border-bottom border-b border-gray-300 focus:border-blue-500 outline-none px-2 py-1" placeholder="Dr. Name">
+                    </div>
+                </div>
+
+                <!-- Exam Type Selector (Non-Printable) -->
+                <div class="mb-6 p-4 bg-blue-50 rounded-lg no-print border border-blue-100">
+                    <label class="block font-semibold text-blue-900 mb-2">Select Ultrasound Type:</label>
+                    <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="exam-type" value="abdomen" class="w-4 h-4 text-blue-600" checked onchange="toggleExamForm()">
+                            <span class="font-medium text-gray-800">Abdomen</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="exam-type" value="ob" class="w-4 h-4 text-blue-600" onchange="toggleExamForm()">
+                            <span class="font-medium text-gray-800">Obstetrics (OB)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ABDOMEN FORM SECTION -->
+                <div id="abdomen-form" class="exam-section mb-8">
+                    <h4 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-gray-200">Abdominal Findings</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Liver:</label>
+                            <textarea id="abd-liver" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Normal size and echotexture..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Gallbladder & Biliary Tract:</label>
+                            <textarea id="abd-gb" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Well distended, no stones..."></textarea>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Pancreas:</label>
+                                <textarea id="abd-pancreas" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Normal outline..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Spleen:</label>
+                                <textarea id="abd-spleen" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Normal size..."></textarea>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Kidneys (Right & Left):</label>
+                            <textarea id="abd-kidneys" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Normal size, location, and echotexture. No hydronephrosis or calculi..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Bladder & Pelvis:</label>
+                            <textarea id="abd-pelvis" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Normal wall thickness..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OBSTETRICS (OB) FORM SECTION -->
+                <div id="ob-form" class="exam-section hidden mb-8">
+                    <h4 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-gray-200">Obstetric Findings</h4>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">BPD (mm):</label>
+                            <input type="text" id="ob-bpd" class="w-full print-border-bottom border-b border-gray-300 focus:border-blue-500 outline-none px-2 py-1">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">HC (mm):</label>
+                            <input type="text" id="ob-hc" class="w-full print-border-bottom border-b border-gray-300 focus:border-blue-500 outline-none px-2 py-1">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">AC (mm):</label>
+                            <input type="text" id="ob-ac" class="w-full print-border-bottom border-b border-gray-300 focus:border-blue-500 outline-none px-2 py-1">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">FL (mm):</label>
+                            <input type="text" id="ob-fl" class="w-full print-border-bottom border-b border-gray-300 focus:border-blue-500 outline-none px-2 py-1">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Fetal Presentation:</label>
+                                <input type="text" id="ob-presentation" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Cephalic / Breech...">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Fetal Heart Rate (bpm):</label>
+                                <input type="text" id="ob-fhr" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="e.g. 140 bpm">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Placenta Location & Grade:</label>
+                            <input type="text" id="ob-placenta" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Anterior, Grade I...">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Amniotic Fluid:</label>
+                            <input type="text" id="ob-fluid" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Adequate / Oligohydramnios / Polyhydramnios...">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-3 rounded-lg print:bg-transparent print:p-0">
+                            <div>
+                                <label class="block font-bold text-gray-800 mb-1">EGA (Estimated Gestational Age):</label>
+                                <input type="text" id="ob-ega" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none font-medium" placeholder="Weeks / Days">
+                            </div>
+                            <div>
+                                <label class="block font-bold text-gray-800 mb-1">EDD (Estimated Date of Delivery):</label>
+                                <input type="date" id="ob-edd" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none font-medium">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Common Conclusion -->
+                <div class="mb-8 mt-6">
+                    <h4 class="text-lg font-bold text-gray-800 mb-2 pb-2 border-b-2 border-gray-200">Conclusion / Impression</h4>
+                    <textarea id="conclusion-text" rows="3" class="w-full border border-gray-300 rounded-md p-3 focus:ring-1 focus:ring-blue-500 outline-none font-medium text-gray-900" placeholder="Final impression based on findings..."></textarea>
+                </div>
+
+                <!-- Images Section -->
+                <div class="mb-8">
+                    <div class="flex justify-between items-center mb-4 pb-2 border-b-2 border-gray-200 no-print">
+                        <h4 class="text-lg font-bold text-gray-800">Ultrasound Images</h4>
+                        <div>
+                            <input type="file" id="image-upload" multiple accept="image/*" class="hidden" onchange="handleImageUpload(event)">
+                            <button onclick="document.getElementById('image-upload').click()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium rounded-lg transition flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                Add Images
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Image Grid -->
+                    <div id="image-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4 image-preview-container">
+                        <!-- Images will be injected here via JS -->
+                    </div>
+                </div>
+
+                <!-- Signatures -->
+                <div class="mt-16 flex justify-between items-end">
+                    <div class="text-center w-48">
+                        <div class="border-b border-gray-800 mb-2 h-16"></div>
+                        <p class="font-semibold text-gray-800">Examined By</p>
+                        <p class="text-sm text-gray-500">Sonographer</p>
+                    </div>
+                    <div class="text-center w-48">
+                        <div class="border-b border-gray-800 mb-2 h-16"></div>
+                        <p class="font-semibold text-gray-800">Doctor in Charge</p>
+                        <p class="text-sm text-gray-500">Signature & Stamp</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="add-user-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden no-print">
+        <div class="bg-white p-6 rounded-xl shadow-xl w-full max-w-sm">
+            <h3 class="text-xl font-bold text-gray-800 mb-4">Add New User</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">New Username</label>
+                    <input type="text" id="new-username" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                    <input type="password" id="new-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div class="flex justify-end gap-2 mt-6">
+                    <button onclick="closeAddUserModal()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition">Cancel</button>
+                    <button onclick="addNewUser()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition">Save User</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data State
+        let uploadedImages = []; // Array to store base64 images
+
+        // Set today's date by default
+        document.getElementById('exam-date').valueAsDate = new Date();
+
+        // -------------------------
+        // UI & Notifications
+        // -------------------------
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-blue-600';
+            if (type === 'error') bgClass = 'bg-red-600';
+            if (type === 'success') bgClass = 'bg-green-600';
+            if (type === 'warning') bgClass = 'bg-amber-500';
+
+            toast.className = `${bgClass} text-white px-4 py-3 rounded shadow-lg transform transition-all duration-300 translate-x-full flex items-center gap-2`;
+            toast.innerHTML = `
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" class="ml-auto text-white hover:text-gray-200">&times;</button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Animate in
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-x-full');
+            });
+
+            // Auto remove after 3s
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // -------------------------
+        // Authentication System
+        // -------------------------
+        function initAuth() {
+            // Check for existing users in localStorage, if none, create default
+            let users = JSON.parse(localStorage.getItem('clinic_users') || '[]');
+            
+            // Fix for typo in password if it was already saved to local storage
+            let defaultUser = users.find(u => u.username === 'Chamroeun');
+            if (defaultUser && defaultUser.password === 'chomroeun03/11/1993') {
+                defaultUser.password = 'Chamroeun03/11/1993';
+                localStorage.setItem('clinic_users', JSON.stringify(users));
+            } else if (users.length === 0) {
+                users.push({ username: 'Chamroeun', password: 'Chamroeun03/11/1993' });
+                localStorage.setItem('clinic_users', JSON.stringify(users));
+            }
+            
+            // Check if already logged in this session
+            const activeUser = sessionStorage.getItem('clinic_active_user');
+            if (activeUser) {
+                showMainApp(activeUser);
+            }
+        }
+
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const userIn = document.getElementById('login-username').value;
+            const passIn = document.getElementById('login-password').value;
+            
+            const users = JSON.parse(localStorage.getItem('clinic_users') || '[]');
+            const validUser = users.find(u => u.username === userIn && u.password === passIn);
+
+            if (validUser) {
+                sessionStorage.setItem('clinic_active_user', validUser.username);
+                showToast(`Welcome back, ${validUser.username}`, 'success');
+                showMainApp(validUser.username);
+                document.getElementById('login-form').reset();
+            } else {
+                showToast('Invalid Username or Password', 'error');
+            }
+        });
+
+        function showMainApp(username) {
+            document.getElementById('current-user-display').innerText = `User: ${username}`;
+            document.getElementById('login-view').classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('main-view').classList.remove('hidden');
+                setTimeout(() => document.getElementById('main-view').classList.remove('opacity-0'), 50);
+            }, 300);
+        }
+
+        function logout() {
+            sessionStorage.removeItem('clinic_active_user');
+            document.getElementById('main-view').classList.add('opacity-0');
+            setTimeout(() => {
+                document.getElementById('main-view').classList.add('hidden');
+                document.getElementById('login-view').classList.remove('hidden');
+                document.getElementById('login-view').classList.remove('pointer-events-none', 'opacity-0');
+            }, 300);
+            resetForm(); // Clear data on logout for security
+        }
+
+        // Add User logic
+        function closeAddUserModal() {
+            document.getElementById('add-user-modal').classList.add('hidden');
+            document.getElementById('new-username').value = '';
+            document.getElementById('new-password').value = '';
+        }
+
+        function addNewUser() {
+            const newU = document.getElementById('new-username').value.trim();
+            const newP = document.getElementById('new-password').value.trim();
+            
+            if(!newU || !newP) {
+                showToast('Please fill both fields', 'warning');
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('clinic_users') || '[]');
+            if(users.some(u => u.username === newU)) {
+                showToast('Username already exists', 'error');
+                return;
+            }
+
+            users.push({ username: newU, password: newP });
+            localStorage.setItem('clinic_users', JSON.stringify(users));
+            showToast('New user added successfully', 'success');
+            closeAddUserModal();
+        }
+
+        // -------------------------
+        // Form & Exam Type Toggle
+        // -------------------------
+        function toggleExamForm() {
+            const type = document.querySelector('input[name="exam-type"]:checked').value;
+            const abdForm = document.getElementById('abdomen-form');
+            const obForm = document.getElementById('ob-form');
+            
+            if (type === 'abdomen') {
+                abdForm.classList.remove('hidden');
+                obForm.classList.add('hidden');
+            } else {
+                abdForm.classList.add('hidden');
+                obForm.classList.remove('hidden');
+            }
+        }
+
+        function resetForm() {
+            // Standard Inputs
+            const inputs = document.querySelectorAll('#main-view input[type="text"], #main-view textarea');
+            inputs.forEach(input => input.value = '');
+            
+            // Set date to today
+            document.getElementById('exam-date').valueAsDate = new Date();
+            
+            // Radio & Selects
+            document.querySelector('input[name="exam-type"][value="abdomen"]').checked = true;
+            document.getElementById('patient-sex').value = 'Male';
+            toggleExamForm();
+
+            // Clear Images
+            uploadedImages = [];
+            renderImages();
+            showToast('Form reset for new patient', 'info');
+        }
+
+        // -------------------------
+        // Image Handling
+        // -------------------------
+        function handleImageUpload(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (!file.type.startsWith('image/')) continue;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImages.push(e.target.result);
+                    renderImages();
+                };
+                reader.readAsDataURL(file);
+            }
+            // Reset input so same file can be selected again if needed
+            event.target.value = '';
+        }
+
+        function removeImage(index) {
+            uploadedImages.splice(index, 1);
+            renderImages();
+        }
+
+        function renderImages() {
+            const grid = document.getElementById('image-grid');
+            grid.innerHTML = '';
+            
+            uploadedImages.forEach((imgData, index) => {
+                const div = document.createElement('div');
+                div.className = 'img-wrap border border-gray-200 p-1 rounded bg-white shadow-sm';
+                
+                const img = document.createElement('img');
+                img.src = imgData;
+                img.className = 'w-full h-auto object-contain rounded';
+                img.style.maxHeight = '250px';
+                
+                const delBtn = document.createElement('div');
+                delBtn.className = 'delete-btn no-print';
+                delBtn.innerHTML = '&times;';
+                delBtn.onclick = () => removeImage(index);
+                delBtn.title = 'Remove Image';
+                
+                div.appendChild(img);
+                div.appendChild(delBtn);
+                grid.appendChild(div);
+            });
+        }
+
+        // -------------------------
+        // Save to Drive & Load
+        // -------------------------
+        function getFormData() {
+            const type = document.querySelector('input[name="exam-type"]:checked').value;
+            
+            const data = {
+                clinicInfo: "Meng Phaneth Poly Clinic",
+                patient: {
+                    name: document.getElementById('patient-name').value,
+                    date: document.getElementById('exam-date').value,
+                    age: document.getElementById('patient-age').value,
+                    sex: document.getElementById('patient-sex').value,
+                    refDoctor: document.getElementById('ref-doctor').value
+                },
+                examType: type,
+                findings: {},
+                conclusion: document.getElementById('conclusion-text').value,
+                images: uploadedImages // Array of base64 strings
+            };
+
+            if (type === 'abdomen') {
+                data.findings = {
+                    liver: document.getElementById('abd-liver').value,
+                    gb: document.getElementById('abd-gb').value,
+                    pancreas: document.getElementById('abd-pancreas').value,
+                    spleen: document.getElementById('abd-spleen').value,
+                    kidneys: document.getElementById('abd-kidneys').value,
+                    pelvis: document.getElementById('abd-pelvis').value
+                };
+            } else {
+                data.findings = {
+                    bpd: document.getElementById('ob-bpd').value,
+                    hc: document.getElementById('ob-hc').value,
+                    ac: document.getElementById('ob-ac').value,
+                    fl: document.getElementById('ob-fl').value,
+                    presentation: document.getElementById('ob-presentation').value,
+                    fhr: document.getElementById('ob-fhr').value,
+                    placenta: document.getElementById('ob-placenta').value,
+                    fluid: document.getElementById('ob-fluid').value,
+                    ega: document.getElementById('ob-ega').value,
+                    edd: document.getElementById('ob-edd').value
+                };
+            }
+            return data;
+        }
+
+        function saveDataToDrive() {
+            const data = getFormData();
+            if (!data.patient.name) {
+                showToast('Please enter a patient name before saving.', 'warning');
+                return;
+            }
+
+            const dataStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            const safeName = data.patient.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const dateStr = data.patient.date.replace(/-/g, '');
+            a.download = `Echo_${safeName}_${dateStr}.json`;
+            
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showToast('Record saved to your computer.', 'success');
+        }
+
+        function triggerFileLoad() {
+            document.getElementById('file-loader').click();
+        }
+
+        function loadDataFromFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    populateForm(data);
+                    showToast('Record loaded successfully.', 'success');
+                } catch (err) {
+                    showToast('Error reading file. Ensure it is a valid record JSON.', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // reset
+        }
+
+        function populateForm(data) {
+            if(!data.patient) return;
+
+            // Basic Info
+            document.getElementById('patient-name').value = data.patient.name || '';
+            document.getElementById('exam-date').value = data.patient.date || '';
+            document.getElementById('patient-age').value = data.patient.age || '';
+            document.getElementById('patient-sex').value = data.patient.sex || 'Male';
+            document.getElementById('ref-doctor').value = data.patient.refDoctor || '';
+            
+            // Set Type
+            const type = data.examType || 'abdomen';
+            document.querySelector(`input[name="exam-type"][value="${type}"]`).checked = true;
+            toggleExamForm();
+
+            // Findings
+            if (type === 'abdomen' && data.findings) {
+                document.getElementById('abd-liver').value = data.findings.liver || '';
+                document.getElementById('abd-gb').value = data.findings.gb || '';
+                document.getElementById('abd-pancreas').value = data.findings.pancreas || '';
+                document.getElementById('abd-spleen').value = data.findings.spleen || '';
+                document.getElementById('abd-kidneys').value = data.findings.kidneys || '';
+                document.getElementById('abd-pelvis').value = data.findings.pelvis || '';
+            } else if (type === 'ob' && data.findings) {
+                document.getElementById('ob-bpd').value = data.findings.bpd || '';
+                document.getElementById('ob-hc').value = data.findings.hc || '';
+                document.getElementById('ob-ac').value = data.findings.ac || '';
+                document.getElementById('ob-fl').value = data.findings.fl || '';
+                document.getElementById('ob-presentation').value = data.findings.presentation || '';
+                document.getElementById('ob-fhr').value = data.findings.fhr || '';
+                document.getElementById('ob-placenta').value = data.findings.placenta || '';
+                document.getElementById('ob-fluid').value = data.findings.fluid || '';
+                document.getElementById('ob-ega').value = data.findings.ega || '';
+                document.getElementById('ob-edd').value = data.findings.edd || '';
+            }
+
+            // Conclusion
+            document.getElementById('conclusion-text').value = data.conclusion || '';
+
+            // Images
+            uploadedImages = data.images || [];
+            renderImages();
+        }
+
+        // Initialize on load
+        window.onload = initAuth;
+
+        // Auto-resize textareas based on content
+        document.querySelectorAll('textarea').forEach(el => {
+            el.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        });
+
+    </script>
+</body>
+</html>
