@@ -35,8 +35,13 @@
 
         /* Print Styles */
         @media print {
-            @page { margin: 1.5cm; }
-            body { background-color: white; }
+            @page { margin: 10mm; } /* បង្រួម Margin ក្រដាស */
+            body { 
+                background-color: white; 
+                color: black;
+                font-size: 11pt !important; /* បង្រួមទំហំអក្សរ */
+                line-height: 1.25 !important; /* ទាញបន្ទាត់អត្ថបទឲ្យជិតគ្នា */
+            }
             .no-print { display: none !important; }
             .print-only { display: block !important; }
             
@@ -48,16 +53,18 @@
                 box-shadow: none !important;
                 padding: 0 !important;
                 color: black !important;
+                font-weight: 500 !important;
             }
             
             /* Expand textareas to fit content on print */
             textarea {
                 height: auto !important;
                 overflow: visible !important;
+                line-height: 1.25 !important;
             }
 
             .print-border-bottom {
-                border-bottom: 1px solid #000 !important;
+                border-bottom: 1px dotted #999 !important;
                 border-radius: 0 !important;
             }
 
@@ -65,18 +72,55 @@
             .bg-white { background-color: transparent !important; }
             .rounded-lg, .rounded-xl, .rounded-md { border-radius: 0 !important; }
             
-            /* Ensure images don't break across pages awkwardly */
-            .image-preview-container {
-                break-inside: avoid;
-                page-break-inside: avoid;
-            }
-            
-            /* Clinic Header for Print */
+            /* --- COMPACT SPACING FOR 1 PAGE --- */
             .clinic-header {
                 text-align: center;
-                border-bottom: 2px solid #2563eb;
-                padding-bottom: 1rem;
-                margin-bottom: 1.5rem;
+                border-bottom: 2px solid #000;
+                padding-bottom: 0.25rem !important;
+                margin-bottom: 0.5rem !important;
+            }
+            .clinic-header img { width: 60px !important; height: 60px !important; }
+            .clinic-header h1 { font-size: 1.4rem !important; margin: 0 !important; }
+            .clinic-header h2 { font-size: 0.9rem !important; margin: 0 !important; }
+            .clinic-header p { font-size: 9pt !important; margin: 0 !important; color: black !important; }
+            
+            /* Spacing overrides to squeeze content */
+            .mb-8 { margin-bottom: 0.5rem !important; }
+            .mb-6 { margin-bottom: 0.25rem !important; }
+            .mb-4 { margin-bottom: 0.25rem !important; }
+            .mt-6 { margin-top: 0.25rem !important; }
+            .mt-16 { margin-top: 1rem !important; }
+            .gap-4 { gap: 0.25rem !important; }
+            .p-4, .p-8, .p-12 { padding: 0 !important; }
+            .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+                margin-top: 0.15rem !important;
+            }
+            
+            /* Section Headers */
+            h4 {
+                font-size: 11pt !important;
+                border-bottom: 1px solid #000 !important;
+                padding-bottom: 0.1rem !important;
+                margin-bottom: 0.25rem !important;
+            }
+            
+            /* Ensure images print well and fit on the page */
+            #image-grid {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                gap: 5px !important;
+                justify-content: center !important;
+            }
+            .img-wrap {
+                width: 32% !important; /* ដាក់រូបភាព ៣ ក្នុងមួយជួរ */
+                border: none !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+            }
+            .img-wrap img {
+                max-height: 150px !important; /* កំណត់កម្ពស់រូបភាពឲ្យខ្លីដើម្បីកុំឲ្យស៊ីកន្លែង */
+                object-fit: contain;
+                border: 1px solid #ddd;
             }
         }
 
@@ -202,17 +246,24 @@
                     </div>
                 </div>
 
-                <!-- Exam Type Selector (Non-Printable) -->
                 <div class="mb-6 p-4 bg-blue-50 rounded-lg no-print border border-blue-100">
-                    <label class="block font-semibold text-blue-900 mb-2">Select Ultrasound Type:</label>
-                    <div class="flex gap-4">
-                        <label class="flex items-center gap-2 cursor-pointer">
+                    <label class="block font-semibold text-blue-900 mb-2">Select Ultrasound Category:</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded border border-blue-200 hover:bg-blue-100 transition">
                             <input type="radio" name="exam-type" value="abdomen" class="w-4 h-4 text-blue-600" checked onchange="toggleExamForm()">
-                            <span class="font-medium text-gray-800">Abdomen</span>
+                            <span class="font-medium text-gray-800 text-sm">Abdomen</span>
                         </label>
-                        <label class="flex items-center gap-2 cursor-pointer">
+                        <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded border border-blue-200 hover:bg-blue-100 transition">
                             <input type="radio" name="exam-type" value="ob" class="w-4 h-4 text-blue-600" onchange="toggleExamForm()">
-                            <span class="font-medium text-gray-800">Obstetrics (OB)</span>
+                            <span class="font-medium text-gray-800 text-sm">Obstetrics (OB)</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded border border-blue-200 hover:bg-blue-100 transition">
+                            <input type="radio" name="exam-type" value="gyn" class="w-4 h-4 text-blue-600" onchange="toggleExamForm()">
+                            <span class="font-medium text-gray-800 text-sm">Gynecology</span>
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded border border-blue-200 hover:bg-blue-100 transition">
+                            <input type="radio" name="exam-type" value="smallparts" class="w-4 h-4 text-blue-600" onchange="toggleExamForm()">
+                            <span class="font-medium text-gray-800 text-sm">Small Parts</span>
                         </label>
                     </div>
                 </div>
@@ -222,30 +273,135 @@
                     <h4 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-gray-200">Abdominal Findings</h4>
                     <div class="space-y-4">
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1">Liver:</label>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block font-semibold text-gray-700">Liver:</label>
+                                <select class="text-xs border border-gray-300 rounded p-1 bg-gray-50 no-print outline-none focus:border-blue-500 text-gray-700 max-w-[200px]" onchange="insertTemplate('abd-liver', this)">
+                                    <option value="">+ ជ្រើសរើស (Select)</option>
+                                    <option value="Normal size and echotexture. No focal mass.">Normal</option>
+                                    <option value="Fatty liver.">Fatty liver</option>
+                                    <option value="Focal fatty infiltration noted.">Focal fatty infiltration</option>
+                                    <option value="Changes consistent with Hepatitis.">Hepatitis</option>
+                                    <option value="Cirrhosis architecture noted.">Cirrhosis</option>
+                                    <option value="Signs of portal hypertension present.">Portal hypertension</option>
+                                    <option value="Hepatic cyst measuring [ ] cm.">Hepatic cyst</option>
+                                    <option value="Polycystic liver disease.">Polycystic liver disease</option>
+                                    <option value="Liver abscess noted measuring [ ] cm.">Liver abscess</option>
+                                    <option value="Hemangioma measuring [ ] cm.">Hemangioma</option>
+                                    <option value="Focal nodular hyperplasia.">Focal nodular hyperplasia</option>
+                                    <option value="Hepatic adenoma.">Hepatic adenoma</option>
+                                    <option value="Suspicious for Hepatocellular carcinoma.">Hepatocellular carcinoma</option>
+                                    <option value="Suspicious for Cholangiocarcinoma.">Cholangiocarcinoma</option>
+                                    <option value="Evidence of metastatic disease.">Metastatic disease</option>
+                                    <option value="Budd-Chiari syndrome.">Budd-Chiari syndrome</option>
+                                    <option value="Portal vein thrombosis noted.">Portal vein thrombosis</option>
+                                </select>
+                            </div>
                             <textarea id="abd-liver" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Normal size and echotexture..."></textarea>
                         </div>
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1">Gallbladder & Biliary Tract:</label>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block font-semibold text-gray-700">Gallbladder & Biliary Tree:</label>
+                                <select class="text-xs border border-gray-300 rounded p-1 bg-gray-50 no-print outline-none focus:border-blue-500 text-gray-700 max-w-[200px]" onchange="insertTemplate('abd-gb', this)">
+                                    <option value="">+ ជ្រើសរើស (Select)</option>
+                                    <option value="Well distended, thin wall, no stones.">Normal</option>
+                                    <option value="Cholelithiasis (Gallstones).">Cholelithiasis</option>
+                                    <option value="Gallbladder sludge noted.">Sludge</option>
+                                    <option value="Acute cholecystitis features present.">Acute cholecystitis</option>
+                                    <option value="Chronic cholecystitis.">Chronic cholecystitis</option>
+                                    <option value="Emphysematous cholecystitis.">Emphysematous cholecystitis</option>
+                                    <option value="Gallbladder polyp measuring [ ] mm.">Gallbladder polyp</option>
+                                    <option value="Adenomyomatosis.">Adenomyomatosis</option>
+                                    <option value="Porcelain gallbladder.">Porcelain gallbladder</option>
+                                    <option value="Suspicious for Gallbladder carcinoma.">Gallbladder carcinoma</option>
+                                    <option value="Gallbladder hydrops.">Hydrops</option>
+                                    <option value="Choledocholithiasis (CBD stone).">Choledocholithiasis</option>
+                                    <option value="Cholangitis.">Cholangitis</option>
+                                    <option value="Biliary obstruction/dilatation.">Biliary obstruction</option>
+                                    <option value="Choledochal cyst.">Choledochal cyst</option>
+                                </select>
+                            </div>
                             <textarea id="abd-gb" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Well distended, no stones..."></textarea>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block font-semibold text-gray-700 mb-1">Pancreas:</label>
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="block font-semibold text-gray-700">Pancreas:</label>
+                                    <select class="text-xs border border-gray-300 rounded p-1 bg-gray-50 no-print outline-none focus:border-blue-500 text-gray-700 max-w-[120px]" onchange="insertTemplate('abd-pancreas', this)">
+                                        <option value="">+ ជ្រើសរើស</option>
+                                        <option value="Normal size and echotexture.">Normal</option>
+                                        <option value="Acute pancreatitis.">Acute pancreatitis</option>
+                                        <option value="Chronic pancreatitis.">Chronic pancreatitis</option>
+                                        <option value="Pancreatic pseudocyst.">Pseudocyst</option>
+                                        <option value="Pancreatic abscess.">Abscess</option>
+                                        <option value="Suspicious for Pancreatic adenocarcinoma.">Adenocarcinoma</option>
+                                        <option value="Neuroendocrine tumor.">Neuroendocrine tumor</option>
+                                        <option value="Cystic neoplasm / IPMN.">Cystic neoplasm / IPMN</option>
+                                        <option value="Pancreatic metastasis.">Pancreatic metastasis</option>
+                                    </select>
+                                </div>
                                 <textarea id="abd-pancreas" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Normal outline..."></textarea>
                             </div>
                             <div>
-                                <label class="block font-semibold text-gray-700 mb-1">Spleen:</label>
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="block font-semibold text-gray-700">Spleen:</label>
+                                    <select class="text-xs border border-gray-300 rounded p-1 bg-gray-50 no-print outline-none focus:border-blue-500 text-gray-700 max-w-[120px]" onchange="insertTemplate('abd-spleen', this)">
+                                        <option value="">+ ជ្រើសរើស</option>
+                                        <option value="Normal size and homogeneous.">Normal</option>
+                                        <option value="Splenomegaly.">Splenomegaly</option>
+                                        <option value="Splenic cyst measuring [ ] cm.">Splenic cyst</option>
+                                        <option value="Splenic abscess.">Splenic abscess</option>
+                                        <option value="Splenic infarction.">Splenic infarction</option>
+                                        <option value="Splenic hematoma.">Splenic hematoma</option>
+                                        <option value="Splenic rupture.">Splenic rupture</option>
+                                        <option value="Splenic hemangioma.">Hemangioma</option>
+                                    </select>
+                                </div>
                                 <textarea id="abd-spleen" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Normal size..."></textarea>
                             </div>
                         </div>
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1">Kidneys (Right & Left):</label>
-                            <textarea id="abd-kidneys" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Normal size, location, and echotexture. No hydronephrosis or calculi..."></textarea>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block font-semibold text-gray-700">Kidneys (Right & Left):</label>
+                                <select class="text-xs border border-gray-300 rounded p-1 bg-gray-50 no-print outline-none focus:border-blue-500 text-gray-700 max-w-[200px]" onchange="insertTemplate('abd-kidneys', this)">
+                                    <option value="">+ ជ្រើសរើស (Select)</option>
+                                    <option value="Both kidneys normal. No stones or hydronephrosis.">Normal</option>
+                                    <option value="Simple renal cyst measuring [ ] cm.">Simple renal cyst</option>
+                                    <option value="Complex renal cyst.">Complex renal cyst</option>
+                                    <option value="Polycystic kidney disease.">Polycystic kidney disease</option>
+                                    <option value="Hydronephrosis.">Hydronephrosis</option>
+                                    <option value="Renal calculi (stones).">Renal calculi</option>
+                                    <option value="Pyelonephritis.">Pyelonephritis</option>
+                                    <option value="Renal abscess.">Renal abscess</option>
+                                    <option value="Suspicious for Renal cell carcinoma.">Renal cell carcinoma</option>
+                                    <option value="Angiomyolipoma.">Angiomyolipoma</option>
+                                    <option value="Transitional cell carcinoma.">Transitional cell carcinoma</option>
+                                    <option value="Renal vein thrombosis.">Renal vein thrombosis</option>
+                                    <option value="End-stage renal disease changes.">End-stage renal disease</option>
+                                </select>
+                            </div>
+                            <textarea id="abd-kidneys" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Normal size, location, and echotexture..."></textarea>
                         </div>
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1">Bladder & Pelvis:</label>
-                            <textarea id="abd-pelvis" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Normal wall thickness..."></textarea>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block font-semibold text-gray-700">Bladder, Aorta & GI / Pelvis:</label>
+                                <select class="text-xs border border-gray-300 rounded p-1 bg-gray-50 no-print outline-none focus:border-blue-500 text-gray-700 max-w-[200px]" onchange="insertTemplate('abd-pelvis', this)">
+                                    <option value="">+ ជ្រើសរើស (Select)</option>
+                                    <option value="Normal urinary bladder and abdominal aorta.">Normal</option>
+                                    <option value="Bladder stone.">Bladder stone</option>
+                                    <option value="Cystitis (thickened bladder wall).">Cystitis</option>
+                                    <option value="Bladder diverticulum.">Bladder diverticulum</option>
+                                    <option value="Ureterocele.">Ureterocele</option>
+                                    <option value="Suspicious for Bladder carcinoma.">Bladder carcinoma</option>
+                                    <option value="Neurogenic bladder.">Neurogenic bladder</option>
+                                    <option value="Abdominal aortic aneurysm (AAA).">AAA</option>
+                                    <option value="Aortic dissection.">Aortic dissection</option>
+                                    <option value="Acute appendicitis.">Acute appendicitis</option>
+                                    <option value="Intussusception.">Intussusception</option>
+                                    <option value="Bowel obstruction.">Bowel obstruction</option>
+                                    <option value="Diverticulitis.">Diverticulitis</option>
+                                </select>
+                            </div>
+                            <textarea id="abd-pelvis" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Normal bladder wall, aorta within normal limits..."></textarea>
                         </div>
                     </div>
                 </div>
@@ -274,25 +430,83 @@
                     </div>
 
                     <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block font-semibold text-gray-700">General Status / Early Pregnancy:</label>
+                                <select class="text-xs border border-gray-300 rounded p-1 bg-gray-50 no-print outline-none focus:border-blue-500 text-gray-700 max-w-[200px]" onchange="insertTemplate('ob-general', this)">
+                                    <option value="">+ ជ្រើសរើស</option>
+                                    <option value="Normal intrauterine pregnancy.">Normal IUP</option>
+                                    <option value="Threatened abortion.">Threatened abortion</option>
+                                    <option value="Inevitable abortion.">Inevitable abortion</option>
+                                    <option value="Incomplete abortion.">Incomplete abortion</option>
+                                    <option value="Complete abortion.">Complete abortion</option>
+                                    <option value="Missed abortion.">Missed abortion</option>
+                                    <option value="Blighted ovum.">Blighted ovum</option>
+                                    <option value="Subchorionic hemorrhage.">Subchorionic hemorrhage</option>
+                                    <option value="Ectopic pregnancy.">Ectopic pregnancy</option>
+                                    <option value="Molar pregnancy.">Molar pregnancy</option>
+                                    <option value="Twin gestation.">Twins</option>
+                                    <option value="IUGR/FGR noted.">IUGR / FGR</option>
+                                    <option value="Macrosomia.">Macrosomia</option>
+                                </select>
+                            </div>
+                            <textarea id="ob-general" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Single live intrauterine gestation..."></textarea>
+                        </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block font-semibold text-gray-700 mb-1">Fetal Presentation:</label>
-                                <input type="text" id="ob-presentation" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Cephalic / Breech...">
+                                <label class="block font-semibold text-gray-700 mb-1">Presentation & FHR:</label>
+                                <input type="text" id="ob-presentation" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none mb-2" placeholder="Presentation (Cephalic, Breech)">
+                                <input type="text" id="ob-fhr" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Heart Rate (e.g., 140 bpm)">
                             </div>
                             <div>
-                                <label class="block font-semibold text-gray-700 mb-1">Fetal Heart Rate (bpm):</label>
-                                <input type="text" id="ob-fhr" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="e.g. 140 bpm">
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="block font-semibold text-gray-700">Fetal Anomalies Scan:</label>
+                                    <select class="text-xs border border-gray-300 rounded p-1 bg-gray-50 no-print outline-none focus:border-blue-500 text-gray-700 max-w-[150px]" onchange="insertTemplate('ob-anomalies', this)">
+                                        <option value="">+ ជ្រើសរើស Anomalies</option>
+                                        <optgroup label="CNS / Head">
+                                            <option value="Anencephaly.">Anencephaly</option>
+                                            <option value="Spina bifida.">Spina bifida</option>
+                                            <option value="Hydrocephalus.">Hydrocephalus</option>
+                                            <option value="Ventriculomegaly.">Ventriculomegaly</option>
+                                        </optgroup>
+                                        <optgroup label="Face & Neck">
+                                            <option value="Cleft lip/palate.">Cleft lip/palate</option>
+                                            <option value="Cystic hygroma.">Cystic hygroma</option>
+                                        </optgroup>
+                                        <optgroup label="Chest & Heart">
+                                            <option value="VSD.">VSD</option>
+                                            <option value="Congenital diaphragmatic hernia.">CDH</option>
+                                        </optgroup>
+                                        <optgroup label="Abdomen & GI/GU">
+                                            <option value="Omphalocele.">Omphalocele</option>
+                                            <option value="Gastroschisis.">Gastroschisis</option>
+                                            <option value="Fetal Hydronephrosis.">Fetal Hydronephrosis</option>
+                                        </optgroup>
+                                        <optgroup label="Skeletal">
+                                            <option value="Clubfoot.">Clubfoot</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <textarea id="ob-anomalies" rows="3" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="No gross anomalies seen..."></textarea>
                             </div>
                         </div>
                         <div>
-                            <label class="block font-semibold text-gray-700 mb-1">Placenta Location & Grade:</label>
-                            <input type="text" id="ob-placenta" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Anterior, Grade I...">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block font-semibold text-gray-700">Placenta & Amniotic Fluid:</label>
+                                <select class="text-xs border border-gray-300 rounded p-1 bg-gray-50 no-print outline-none focus:border-blue-500 text-gray-700 max-w-[200px]" onchange="insertTemplate('ob-placenta-fluid', this)">
+                                    <option value="">+ ជ្រើសរើស</option>
+                                    <option value="Normal anterior placenta, adequate fluid.">Normal Anterior/Adequate</option>
+                                    <option value="Normal posterior placenta, adequate fluid.">Normal Posterior/Adequate</option>
+                                    <option value="Placenta previa.">Placenta previa</option>
+                                    <option value="Placental abruption.">Placental abruption</option>
+                                    <option value="Placenta accreta spectrum.">Placenta accreta</option>
+                                    <option value="Oligohydramnios.">Oligohydramnios (Low fluid)</option>
+                                    <option value="Polyhydramnios.">Polyhydramnios (Excess fluid)</option>
+                                </select>
+                            </div>
+                            <textarea id="ob-placenta-fluid" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Placenta location, grade, and fluid volume..."></textarea>
                         </div>
-                        <div>
-                            <label class="block font-semibold text-gray-700 mb-1">Amniotic Fluid:</label>
-                            <input type="text" id="ob-fluid" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Adequate / Oligohydramnios / Polyhydramnios...">
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-3 rounded-lg print:bg-transparent print:p-0">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-3 rounded-lg print:bg-transparent print:p-0 mt-4">
                             <div>
                                 <label class="block font-bold text-gray-800 mb-1">EGA (Estimated Gestational Age):</label>
                                 <input type="text" id="ob-ega" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none font-medium" placeholder="Weeks / Days">
@@ -305,9 +519,164 @@
                     </div>
                 </div>
 
+                <!-- GYNECOLOGY (GYN) FORM SECTION -->
+                <div id="gyn-form" class="exam-section hidden mb-8">
+                    <h4 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-gray-200">Gynecological Findings</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block font-semibold text-gray-700">Uterus:</label>
+                                <select class="text-xs border border-gray-300 rounded p-1 bg-gray-50 no-print outline-none focus:border-blue-500 text-gray-700 max-w-[200px]" onchange="insertTemplate('gyn-uterus', this)">
+                                    <option value="">+ ជ្រើសរើស</option>
+                                    <option value="Normal size, shape, and echotexture.">Normal</option>
+                                    <option value="Leiomyoma (fibroid) measuring [ ] cm.">Leiomyoma (fibroid)</option>
+                                    <option value="Adenomyosis.">Adenomyosis</option>
+                                    <option value="Endometrial polyp.">Endometrial polyp</option>
+                                    <option value="Endometrial hyperplasia.">Endometrial hyperplasia</option>
+                                    <option value="Suspicious for Endometrial carcinoma.">Endometrial carcinoma</option>
+                                    <option value="Uterine anomaly noted.">Uterine anomaly</option>
+                                </select>
+                            </div>
+                            <textarea id="gyn-uterus" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Uterus size and endometrium..."></textarea>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block font-semibold text-gray-700">Ovaries & Adnexa:</label>
+                                <select class="text-xs border border-gray-300 rounded p-1 bg-gray-50 no-print outline-none focus:border-blue-500 text-gray-700 max-w-[200px]" onchange="insertTemplate('gyn-ovaries', this)">
+                                    <option value="">+ ជ្រើសរើស</option>
+                                    <option value="Bilateral ovaries are normal. No adnexal masses.">Normal</option>
+                                    <option value="Functional ovarian cyst measuring [ ] cm.">Functional cyst</option>
+                                    <option value="Hemorrhagic cyst.">Hemorrhagic cyst</option>
+                                    <option value="Endometrioma (Chocolate cyst).">Endometrioma</option>
+                                    <option value="Dermoid cyst.">Dermoid cyst</option>
+                                    <option value="Polycystic ovary syndrome (PCOS) morphology.">PCOS</option>
+                                    <option value="Ovarian torsion.">Ovarian torsion</option>
+                                    <option value="Suspicious for Ovarian carcinoma.">Ovarian carcinoma</option>
+                                    <option value="Hydrosalpinx noted.">Hydrosalpinx</option>
+                                    <option value="Pyosalpinx / Tubo-ovarian abscess.">Tubo-ovarian abscess</option>
+                                    <option value="Ectopic pregnancy in adnexa.">Ectopic pregnancy</option>
+                                </select>
+                            </div>
+                            <textarea id="gyn-ovaries" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Right and left ovaries..."></textarea>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block font-semibold text-gray-700">Pelvic Cavity / Cul-de-sac:</label>
+                                <select class="text-xs border border-gray-300 rounded p-1 bg-gray-50 no-print outline-none focus:border-blue-500 text-gray-700 max-w-[200px]" onchange="insertTemplate('gyn-pelvis', this)">
+                                    <option value="">+ ជ្រើសរើស</option>
+                                    <option value="No free fluid in the cul-de-sac.">Normal (No fluid)</option>
+                                    <option value="Minimal physiological free fluid.">Minimal fluid</option>
+                                    <option value="Significant free fluid in pelvis.">Significant free fluid</option>
+                                    <option value="Signs suggestive of Pelvic inflammatory disease (PID).">PID</option>
+                                    <option value="Pelvic abscess.">Pelvic abscess</option>
+                                </select>
+                            </div>
+                            <textarea id="gyn-pelvis" rows="2" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Cul-de-sac evaluation..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SMALL PARTS FORM SECTION -->
+                <div id="smallparts-form" class="exam-section hidden mb-8">
+                    <h4 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b-2 border-gray-200">Small Parts Findings</h4>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block font-semibold text-gray-700">Exam Area Focus:</label>
+                                <input type="text" id="sp-focus" class="w-full md:w-1/2 border border-gray-300 rounded-md p-1 px-2 focus:ring-1 focus:ring-blue-500 outline-none text-sm" placeholder="e.g., Thyroid, Breast, Scrotum, Soft Tissue">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="block font-semibold text-gray-700">Findings:</label>
+                                <select class="text-xs border border-gray-300 rounded p-1 bg-gray-50 no-print outline-none focus:border-blue-500 text-gray-700 max-w-[200px]" onchange="insertTemplate('sp-findings', this)">
+                                    <option value="">+ ជ្រើសរើសតាមប្រភេទ (Select)</option>
+                                    <optgroup label="Thyroid">
+                                        <option value="Normal thyroid gland.">Normal Thyroid</option>
+                                        <option value="Thyroid cyst.">Thyroid cyst</option>
+                                        <option value="Colloid cyst.">Colloid cyst</option>
+                                        <option value="Thyroid nodule.">Thyroid nodule</option>
+                                        <option value="Multinodular goiter.">Multinodular goiter</option>
+                                        <option value="Diffuse goiter / Graves disease.">Graves disease</option>
+                                        <option value="Hashimoto thyroiditis.">Hashimoto thyroiditis</option>
+                                        <option value="Suspicious for Papillary/Follicular carcinoma.">Thyroid carcinoma</option>
+                                    </optgroup>
+                                    <optgroup label="Breast">
+                                        <option value="Normal breast tissue.">Normal Breast</option>
+                                        <option value="Simple breast cyst.">Simple cyst</option>
+                                        <option value="Fibrocystic change.">Fibrocystic change</option>
+                                        <option value="Fibroadenoma.">Fibroadenoma</option>
+                                        <option value="Breast abscess / Mastitis.">Abscess/Mastitis</option>
+                                        <option value="Suspicious for Invasive ductal carcinoma.">Breast carcinoma</option>
+                                    </optgroup>
+                                    <optgroup label="Scrotum/Testes">
+                                        <option value="Normal testes and epididymis.">Normal Scrotum</option>
+                                        <option value="Hydrocele.">Hydrocele</option>
+                                        <option value="Varicocele.">Varicocele</option>
+                                        <option value="Epididymal cyst / Spermatocele.">Epididymal cyst</option>
+                                        <option value="Epididymo-orchitis.">Epididymo-orchitis</option>
+                                        <option value="Testicular torsion.">Testicular torsion</option>
+                                        <option value="Suspicious for Seminoma/Tumor.">Testicular tumor</option>
+                                    </optgroup>
+                                    <optgroup label="Soft Tissue">
+                                        <option value="Lipoma measuring [ ] cm.">Lipoma</option>
+                                        <option value="Abscess.">Abscess</option>
+                                        <option value="Hematoma.">Hematoma</option>
+                                        <option value="Sebaceous cyst.">Sebaceous cyst</option>
+                                        <option value="Ganglion cyst.">Ganglion cyst</option>
+                                        <option value="Enlarged/Reactive lymph node.">Lymphadenopathy</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <textarea id="sp-findings" rows="4" class="w-full border border-gray-300 rounded-md p-2 focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Detailed description of the small parts examined..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Common Conclusion -->
                 <div class="mb-8 mt-6">
-                    <h4 class="text-lg font-bold text-gray-800 mb-2 pb-2 border-b-2 border-gray-200">Conclusion / Impression</h4>
+                    <div class="flex justify-between items-center mb-2 pb-2 border-b-2 border-gray-200">
+                        <h4 class="text-lg font-bold text-gray-800">Conclusion / Impression</h4>
+                        <select class="text-sm border border-gray-300 rounded p-1.5 bg-gray-50 no-print outline-none focus:border-blue-500 text-gray-700 max-w-[250px]" onchange="insertTemplate('conclusion-text', this)">
+                            <option value="">+ ជ្រើសរើសសន្និដ្ឋាន (Impression)</option>
+                            <optgroup label="General Normal">
+                                <option value="Normal abdominal ultrasound study.">Normal Abdomen</option>
+                                <option value="Normal obstetric ultrasound study for the given gestational age.">Normal OB Study</option>
+                                <option value="Normal pelvic ultrasound study.">Normal Pelvis/GYN</option>
+                                <option value="Unremarkable ultrasound study of the examined area.">Normal Small Parts</option>
+                            </optgroup>
+                            <optgroup label="Abdomen">
+                                <option value="Hepatic steatosis (Fatty liver).">Fatty Liver</option>
+                                <option value="Liver cirrhosis.">Liver Cirrhosis</option>
+                                <option value="Cholelithiasis.">Gallstones</option>
+                                <option value="Acute cholecystitis.">Acute Cholecystitis</option>
+                                <option value="Bilateral nephrolithiasis.">Renal Stones</option>
+                                <option value="Hydronephrosis.">Hydronephrosis</option>
+                                <option value="Acute appendicitis.">Appendicitis</option>
+                            </optgroup>
+                            <optgroup label="Obstetrics">
+                                <option value="Single live intrauterine gestation.">Single Live Fetus</option>
+                                <option value="Early intrauterine pregnancy.">Early Pregnancy</option>
+                                <option value="Placenta previa.">Placenta Previa</option>
+                                <option value="Intrauterine fetal demise (IUFD).">Fetal Demise (IUFD)</option>
+                                <option value="Ectopic pregnancy.">Ectopic pregnancy</option>
+                            </optgroup>
+                            <optgroup label="Gynecology">
+                                <option value="Uterine leiomyoma (Fibroid).">Uterine Fibroid</option>
+                                <option value="Ovarian cyst (suggest clinical correlation).">Ovarian Cyst</option>
+                                <option value="Polycystic ovary syndrome (PCOS).">PCOS</option>
+                                <option value="Pelvic inflammatory disease (PID).">PID</option>
+                            </optgroup>
+                            <optgroup label="Small Parts">
+                                <option value="Thyroid nodule/goiter.">Thyroid abnormality</option>
+                                <option value="Benign appearing breast fibroadenoma/cyst.">Breast Fibroadenoma/Cyst</option>
+                                <option value="Hydrocele / Varicocele.">Hydrocele / Varicocele</option>
+                                <option value="Epididymitis / Orchitis.">Epididymo-orchitis</option>
+                                <option value="Benign lipoma.">Lipoma</option>
+                                <option value="Reactive lymphadenopathy.">Lymphadenopathy</option>
+                            </optgroup>
+                        </select>
+                    </div>
                     <textarea id="conclusion-text" rows="3" class="w-full border border-gray-300 rounded-md p-3 focus:ring-1 focus:ring-blue-500 outline-none font-medium text-gray-900" placeholder="Final impression based on findings..."></textarea>
                 </div>
 
@@ -506,14 +875,20 @@
             const type = document.querySelector('input[name="exam-type"]:checked').value;
             const abdForm = document.getElementById('abdomen-form');
             const obForm = document.getElementById('ob-form');
+            const gynForm = document.getElementById('gyn-form');
+            const spForm = document.getElementById('smallparts-form');
             
-            if (type === 'abdomen') {
-                abdForm.classList.remove('hidden');
-                obForm.classList.add('hidden');
-            } else {
-                abdForm.classList.add('hidden');
-                obForm.classList.remove('hidden');
-            }
+            // Hide all
+            abdForm.classList.add('hidden');
+            obForm.classList.add('hidden');
+            gynForm.classList.add('hidden');
+            spForm.classList.add('hidden');
+
+            // Show selected
+            if (type === 'abdomen') abdForm.classList.remove('hidden');
+            if (type === 'ob') obForm.classList.remove('hidden');
+            if (type === 'gyn') gynForm.classList.remove('hidden');
+            if (type === 'smallparts') spForm.classList.remove('hidden');
         }
 
         function resetForm() {
@@ -617,18 +992,30 @@
                     kidneys: document.getElementById('abd-kidneys').value,
                     pelvis: document.getElementById('abd-pelvis').value
                 };
-            } else {
+            } else if (type === 'ob') {
                 data.findings = {
                     bpd: document.getElementById('ob-bpd').value,
                     hc: document.getElementById('ob-hc').value,
                     ac: document.getElementById('ob-ac').value,
                     fl: document.getElementById('ob-fl').value,
+                    general: document.getElementById('ob-general').value,
                     presentation: document.getElementById('ob-presentation').value,
                     fhr: document.getElementById('ob-fhr').value,
-                    placenta: document.getElementById('ob-placenta').value,
-                    fluid: document.getElementById('ob-fluid').value,
+                    anomalies: document.getElementById('ob-anomalies').value,
+                    placentaFluid: document.getElementById('ob-placenta-fluid').value,
                     ega: document.getElementById('ob-ega').value,
                     edd: document.getElementById('ob-edd').value
+                };
+            } else if (type === 'gyn') {
+                data.findings = {
+                    uterus: document.getElementById('gyn-uterus').value,
+                    ovaries: document.getElementById('gyn-ovaries').value,
+                    pelvis: document.getElementById('gyn-pelvis').value
+                };
+            } else if (type === 'smallparts') {
+                data.findings = {
+                    focus: document.getElementById('sp-focus').value,
+                    findingsText: document.getElementById('sp-findings').value
                 };
             }
             return data;
@@ -709,12 +1096,20 @@
                 document.getElementById('ob-hc').value = data.findings.hc || '';
                 document.getElementById('ob-ac').value = data.findings.ac || '';
                 document.getElementById('ob-fl').value = data.findings.fl || '';
+                document.getElementById('ob-general').value = data.findings.general || '';
                 document.getElementById('ob-presentation').value = data.findings.presentation || '';
                 document.getElementById('ob-fhr').value = data.findings.fhr || '';
-                document.getElementById('ob-placenta').value = data.findings.placenta || '';
-                document.getElementById('ob-fluid').value = data.findings.fluid || '';
+                document.getElementById('ob-anomalies').value = data.findings.anomalies || '';
+                document.getElementById('ob-placenta-fluid').value = data.findings.placentaFluid || '';
                 document.getElementById('ob-ega').value = data.findings.ega || '';
                 document.getElementById('ob-edd').value = data.findings.edd || '';
+            } else if (type === 'gyn' && data.findings) {
+                document.getElementById('gyn-uterus').value = data.findings.uterus || '';
+                document.getElementById('gyn-ovaries').value = data.findings.ovaries || '';
+                document.getElementById('gyn-pelvis').value = data.findings.pelvis || '';
+            } else if (type === 'smallparts' && data.findings) {
+                document.getElementById('sp-focus').value = data.findings.focus || '';
+                document.getElementById('sp-findings').value = data.findings.findingsText || '';
             }
 
             // Conclusion
@@ -723,6 +1118,38 @@
             // Images
             uploadedImages = data.images || [];
             renderImages();
+            
+            // Trigger auto-resize on all textareas after loading data
+            document.querySelectorAll('textarea').forEach(el => {
+                el.style.height = 'auto';
+                el.style.height = (el.scrollHeight) + 'px';
+            });
+        }
+
+        // -------------------------
+        // Templates Insert Helper
+        // -------------------------
+        function insertTemplate(targetId, selectElement) {
+            const value = selectElement.value;
+            if (!value) return;
+            
+            const target = document.getElementById(targetId);
+            
+            // Append or replace
+            if (target.value.trim() === '') {
+                target.value = value;
+            } else {
+                target.value = target.value + '\n' + value;
+            }
+            
+            // Auto-resize textarea if applicable
+            if (target.tagName.toLowerCase() === 'textarea') {
+                target.style.height = 'auto';
+                target.style.height = (target.scrollHeight) + 'px';
+            }
+            
+            // Reset the select dropdown
+            selectElement.value = '';
         }
 
         // Initialize on load
